@@ -1,5 +1,6 @@
 from typing import List
 
+from .bp import BP
 from .bracket_types import OPEN, CLOSE
 
 str_prefix = " "
@@ -40,6 +41,18 @@ def pos_str(pos: List[int], block_size=None):
         if count%block_size==0:
           s+=" "*len(str_block_sep)
     s+=str_prefix+"^"
+    count+=1
+    if block_size!=None:
+      if count%block_size==0:
+        s+=" "*len(str_block_sep)
+  return s
+
+def index_str(myBP: BP):
+  block_size = myBP.block_size
+  s = ""
+  count =0
+  while count<len(myBP):
+    s+=str_prefix+str(count%10)
     count+=1
     if block_size!=None:
       if count%block_size==0:

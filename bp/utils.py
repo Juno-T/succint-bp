@@ -38,6 +38,10 @@ def getPioneerFamily(P: List[bool], block_size: int):
 
 
 def constructBP(P: List[bool]):
+  """
+    Construct succint BP data structure
+    ** simple two layer in this preliminary experiment.
+  """
   from bp.bp import BP, PioneerFamily
 
   block_size1 = 3
@@ -86,6 +90,19 @@ class TableLookup:
         if open_i==x:
           return close_i
     raise("Close not found")
+  
+  def findopen(P, x):
+    stk = []
+    for i,p in enumerate(P):
+      if p==OPEN:
+        stk.append(i)
+      else:
+        close_i=i
+        open_i = stk.pop()
+        if close_i==x:
+          return open_i
+    raise("Open not found")
+
 
   @staticmethod
   def depth_open(P_block, p_star, p, block_offset):
