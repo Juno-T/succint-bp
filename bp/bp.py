@@ -34,11 +34,27 @@ class BP:
     q = TableLookup.finddepthclose_inblock(self.get_block(q_star), q_depth, q_star, q_block_offset)
     return q
 
-  def findopen():
-    pass
+  def findopen(self, q:int):
+    block_offset = self.b(q)*self.block_size
+    open_i = TableLookup.findmatching_inblock(self.get_block(q), q, block_offset)
+    if open_i!=-1:
+      return open_i
+    q_star = self.R.succ(q-1)
+    p_star = self.R.findopen(q_star)
+    if q==q_star:
+      return p_star
+    p_block_offset = self.b(p_star)*self.block_size
+    q_block_offset = self.b(q)*self.block_size
+    p_depth = TableLookup.depth_close(self.getblock(q), q_star, q_block_offset)
+    p = TableLookup.findedepthopen_inblock(self.get_block(p_star), p_depth, p_star, p_block_offset)
+    return p
+    ##???
   
   def enclose():
     pass
+
+  def __len__(self):
+    return len(self.P)
 
   def __repr__(self) -> str:
     s=""
@@ -48,7 +64,7 @@ class BP:
     if isinstance(self.R.P_prime, BP):
       s+=str(self.R.P_prime)
     else:
-      s+=parser.P2str(self.R.P_prime)+"\n"
+      s+="P'  "+parser.P2str(self.R.P_prime)+"\n"
     return s
 
 class PioneerFamily:
@@ -87,5 +103,13 @@ class PioneerFamily:
       rank = self.P_prime.findclose(self.rank(p)-1)
     else:
       rank = TableLookup.findclose(self.P_prime, self.rank(p)-1)
+    return self.select(rank+1)
+
+  def findopen(self, q):
+    assert(self.R[q]), "q is not in pioneer family"
+    if isinstance(self.P_prime, BP):
+      rank = self.P_prime.findopen(self.rank(q)-1)
+    else:
+      rank = TableLookup.findopen(self.P_prime, self.rank(q)-1)
     return self.select(rank+1)
 
