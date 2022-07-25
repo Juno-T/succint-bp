@@ -1,51 +1,7 @@
 from typing import List, Union
 
-str_prefix = " "
-str_block_sep = " | "
-
-OPEN=True
-CLOSE=False
-
-def str2P(P_str: str):
-  P = [OPEN if c=="(" else CLOSE for c in P_str]
-  return P
-
-def P2str(P: List[bool], block_size=None):
-  num=""
-  s = ""
-  for i, p in enumerate(P):
-    s+=str_prefix+"(" if p==OPEN else str_prefix+")"
-    if block_size!=None:
-      if (i+1)%block_size==0:
-        s+=str_block_sep
-  return s
-
-def R2str(R: List[bool], block_size=None):
-  s = ""
-  for i, r in enumerate(R):
-    s+=str_prefix+"1" if r else str_prefix+"0"
-    if block_size!=None:
-      if (i+1)%block_size==0:
-        s+=str_block_sep
-  return s
-
-def pos_str(pos: List[int], block_size=None):
-  s = ""
-  count =0
-  pos = sorted(pos)
-  for p in pos:
-    while count<p:
-      s+=str_prefix+" "
-      count+=1
-      if block_size!=None:
-        if count%block_size==0:
-          s+=" "*len(str_block_sep)
-    s+=str_prefix+"^"
-    count+=1
-    if block_size!=None:
-      if count%block_size==0:
-        s+=" "*len(str_block_sep)
-  return s
+from bracket_types import OPEN, CLOSE
+import parser
 
 def getPioneerFamily(P: List[bool], block_size: int):
   def b(i):
@@ -82,14 +38,14 @@ def getPioneerFamily(P: List[bool], block_size: int):
 
 def constructBP(P: List[bool]):
   block_size1 = 3
-  print("P   ", P2str(P, block_size1))
+  print("P   ", parser.P2str(P, block_size1))
   R1, P_prime1 = getPioneerFamily(P, block_size1)
-  print("R1  ", R2str(R1,block_size1))
+  print("R1  ", parser.R2str(R1,block_size1))
   block_size2 = 2
-  print("P'1 ", P2str(P_prime1, block_size2))
+  print("P'1 ", parser.P2str(P_prime1, block_size2))
   R2, P_prime2 = getPioneerFamily(P_prime1, block_size2)
-  print("R2  ", R2str(R2,block_size2))
-  print("P'2 ", P2str(P_prime2))
+  print("R2  ", parser.R2str(R2,block_size2))
+  print("P'2 ", parser.P2str(P_prime2))
   R2 = PioneerFamily(R2, P_prime2)
   BP2 = BP(P_prime2, R2, block_size2)
   R1 = PioneerFamily(R1, BP2)
@@ -251,7 +207,7 @@ class TableLookup:
 if __name__=="__main__":
   paren = "(((())()())(()()))"
   block_size = 3
-  P = str2P(paren)
+  P = parser.str2P(paren)
   R, P_prime = getPioneerFamily(P, block_size)
   bp = constructBP(P)
   while True:
@@ -261,5 +217,5 @@ if __name__=="__main__":
       continue
     q = bp.findclose(p)
     str_P_prefix = "P  "
-    print(str_P_prefix, P2str(P, block_size))
-    print(" "*len(str_P_prefix), pos_str([p,q], block_size))
+    print(str_P_prefix, parser.P2str(P, block_size))
+    print(" "*len(str_P_prefix), parser.pos_str([p,q], block_size))
