@@ -48,7 +48,6 @@ class BP:
     p_depth = TableLookup.depth_close(self.getblock(q), q_star, q_block_offset)
     p = TableLookup.findedepthopen_inblock(self.get_block(p_star), p_depth, p_star, p_block_offset)
     return p
-    ##???
   
   def enclose():
     pass
@@ -92,7 +91,7 @@ class PioneerFamily:
     return p
 
   def pred(self, p):
-    return self.select(self.rank(p-1)) # p-1?
+    return self.select(self.rank(p-1))
 
   def succ(self, p):
     return self.select(self.rank(p)+1)

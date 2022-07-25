@@ -3,6 +3,9 @@ import logging
 from bp import parser, utils
 from bp.bracket_types import OPEN, CLOSE
 
+# MUST export PYTHONPATH=path/to/succint_BP:$PYTHONPATH
+
+PARENTHESIS = "(((())()())(()()))"
 
 def query_check(command, x, myBP):
   err=""
@@ -39,9 +42,8 @@ def print_man():
   print(s)
 
 if __name__=="__main__":
-  paren = "(((())()())(()()))"
   print_man()
-  P = parser.str2P(paren)
+  P = parser.str2P(PARENTHESIS)
   myBP = utils.constructBP(P)
   print("BP data structure:\n")
   print(" "*3, parser.index_str(myBP))
