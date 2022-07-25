@@ -1,6 +1,6 @@
 from typing import List
 
-from bracket_types import OPEN, CLOSE
+from .bracket_types import OPEN, CLOSE
 
 str_prefix = " "
 str_block_sep = " | "
