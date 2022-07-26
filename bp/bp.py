@@ -1,4 +1,5 @@
 from typing import List, Union
+import json
 
 from .bracket_types import OPEN, CLOSE
 from .utils import TableLookup
@@ -45,7 +46,7 @@ class BP:
       return p_star
     p_block_offset = self.b(p_star)*self.block_size
     q_block_offset = self.b(q)*self.block_size
-    p_depth = TableLookup.depth_close(self.get_block(q), q_star, q_block_offset)
+    p_depth = TableLookup.depth_close(self.get_block(q), q_star, q, q_block_offset)
     p = TableLookup.findedepthopen_inblock(self.get_block(p_star), p_depth, p_star, p_block_offset)
     return p
   
@@ -55,7 +56,7 @@ class BP:
     if par_i!=-1:
       if self.P[par_i]==CLOSE:
         par_i = self.findopen(par_i)
-        return par_i
+      return par_i
     if self.P[c]==OPEN:
       c = self.findclose(c)
     c_prime = self.R.succ(c)

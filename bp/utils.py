@@ -45,11 +45,13 @@ def constructBP(P: List[bool], min_length = None):
   from bp.bp import BP, PioneerFamily
 
   if min_length == None:
-    min_length =  int(math.ceil(len(P)/math.log(len(P))/math.log(len(P))))
+    min_length =  max(int(math.ceil(len(P)/math.log2(len(P))/math.log2(len(P)))), 2)
   if len(P)<=min_length:
     return P
-  block_size = int(math.log(len(P))/2)
+  block_size = int(math.log2(len(P))/2)
   R, P_prime = getPioneerFamily(P, block_size)
+  if len(P_prime)==len(P):
+    return P # In case there are many outermost parenthesis
   BP_prime = constructBP(P_prime, min_length)
   R = PioneerFamily(R, BP_prime)
   return BP(P, R, block_size)
@@ -83,7 +85,6 @@ class TableLookup:
     """
       Also used with smallest P' which is O(n/log^2 n).
     """
-    x-=block_offset
     x-=block_offset
     stk = []
     look_for_close=False

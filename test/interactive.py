@@ -7,7 +7,8 @@ from bp.bracket_types import OPEN, CLOSE
 # MUST export PYTHONPATH=path/to/succint_BP:$PYTHONPATH
 
 # PARENTHESIS = "(((())()())(()()))"
-PARENTHESIS = "(()(())()((()())())())()(()((()())())())"
+# PARENTHESIS = "(()(())()((()())())())()(()((()())())())"
+PARENTHESIS = "((())(())(((((((((((()())(())())))))))))))"
 
 def query_check(command, x, myBP):
   err=""
@@ -57,7 +58,8 @@ def constructManualBP(P: BP):
 if __name__=="__main__":
   print_man()
   P = parser.str2P(PARENTHESIS)
-  myBP = constructManualBP(P)
+  # myBP = constructManualBP(P) # Using manual construct (for visualization)
+  myBP = utils.constructBP(P) # Using optimal construct
   print("BP data structure:\n")
   print(" "*3, parser.index_str(myBP))
   print(myBP)
