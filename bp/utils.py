@@ -1,4 +1,5 @@
 from typing import List
+import math
 
 from . import parser
 from .bracket_types import OPEN,CLOSE
@@ -37,22 +38,21 @@ def getPioneerFamily(P: List[bool], block_size: int):
   return R, P_prime
 
 
-def constructBP(P: List[bool]):
+def constructBP(P: List[bool], min_length = None):
   """
-    Construct succint BP data structure
-    ** simple two layer in this preliminary experiment.
+    Construct succint BP data structure recursively.
   """
   from bp.bp import BP, PioneerFamily
 
-  block_size1 = 3
-  R1, P_prime1 = getPioneerFamily(P, block_size1)
-  block_size2 = 2
-  R2, P_prime2 = getPioneerFamily(P_prime1, block_size2)
-  R2 = PioneerFamily(R2, P_prime2)
-  BP2 = BP(P_prime1, R2, block_size2)
-  R1 = PioneerFamily(R1, BP2)
-  BP1 = BP(P, R1, block_size1)
-  return BP1
+  if min_length == None:
+    min_length =  int(math.ceil(len(P)/math.log(len(P))/math.log(len(P))))
+  if len(P)<=min_length:
+    return P
+  block_size = int(math.log(len(P))/2)
+  R, P_prime = getPioneerFamily(P, block_size)
+  BP_prime = constructBP(P_prime, min_length)
+  R = PioneerFamily(R, BP_prime)
+  return BP(P, R, block_size)
 
 
 class TableLookup:
@@ -79,7 +79,57 @@ class TableLookup:
     return -1 # Not found
   
   @staticmethod
+  def enclose_inblock(P_block, x, block_offset):
+    """
+      Also used with smallest P' which is O(n/log^2 n).
+    """
+    x-=block_offset
+    x-=block_offset
+    stk = []
+    look_for_close=False
+    for i,p in enumerate(P_block):
+      if p==OPEN:
+        if i==x:
+          if len(stk)>0:
+            return stk[-1]+block_offset
+          look_for_close = True
+        stk.append(i)
+      else:
+        close_i=i
+        if close_i==x:
+          look_for_close = True
+        if len(stk)==0:
+          if look_for_close and close_i!=x:
+            return close_i+block_offset
+          continue
+        open_i = stk.pop()
+        if close_i==x and len(stk)>0:
+          return stk[-1]+block_offset
+    return -1 # Not found
+
+  @staticmethod
+  def find_rightmost_faropen_precede_q_inblock(P_block, q, block_offset):
+    stk = []
+    for i,p in enumerate(P_block):
+      if p==OPEN:
+        stk.append(i)
+      else:
+        close_i=i
+        if len(stk)==0:
+          continue
+        open_i = stk.pop()
+    # what's left in the stack is all far open, sorted.
+    for open_i in stk[::-1]:
+      if open_i+block_offset<q:
+        return open_i+block_offset
+    raise("No far open preceding q")
+
+  @staticmethod
   def findclose(P, x):
+    """
+      Meant to be used with small sized P. 
+      In BP, it was used with P' with the size of S(O(n/log n).
+    """
     stk = []
     for i,p in enumerate(P):
       if p==OPEN:
@@ -91,7 +141,12 @@ class TableLookup:
           return close_i
     raise("Close not found")
   
+  @staticmethod
   def findopen(P, x):
+    """
+      Meant to be used with small sized P. 
+      In BP, it was used with P' with the size of S(O(n/log n).
+    """
     stk = []
     for i,p in enumerate(P):
       if p==OPEN:

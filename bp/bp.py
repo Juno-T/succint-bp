@@ -45,12 +45,33 @@ class BP:
       return p_star
     p_block_offset = self.b(p_star)*self.block_size
     q_block_offset = self.b(q)*self.block_size
-    p_depth = TableLookup.depth_close(self.getblock(q), q_star, q_block_offset)
+    p_depth = TableLookup.depth_close(self.get_block(q), q_star, q_block_offset)
     p = TableLookup.findedepthopen_inblock(self.get_block(p_star), p_depth, p_star, p_block_offset)
     return p
   
-  def enclose():
-    pass
+  def enclose(self, c):
+    block_offset = self.b(c)*self.block_size
+    par_i = TableLookup.enclose_inblock(self.get_block(c), c, block_offset)
+    if par_i!=-1:
+      if self.P[par_i]==CLOSE:
+        par_i = self.findopen(par_i)
+        return par_i
+    if self.P[c]==OPEN:
+      c = self.findclose(c)
+    c_prime = self.R.succ(c)
+    if self.P[c_prime]==CLOSE:
+      p_prime = self.findopen(c_prime)
+    else:
+      p_prime = self.R.enclose(c_prime) # p' always be open in piofam
+    q = self.R.succ(p_prime)
+    p_prime_block_offset = self.b(p_prime)*self.block_size
+    if self.b(q) == self.b(p_prime):
+      #far open in b(p') right before q
+      return TableLookup.find_rightmost_faropen_precede_q_inblock(self.get_block(p_prime), q, p_prime_block_offset)
+    else:
+      #right most far open in b(p') == preceding block's end
+      block_end = self.block_size+p_prime_block_offset
+      return TableLookup.find_rightmost_faropen_precede_q_inblock(self.get_block(p_prime), block_end, p_prime_block_offset)
 
   def __len__(self):
     return len(self.P)
@@ -98,17 +119,32 @@ class PioneerFamily:
 
   def findclose(self, p):
     assert(self.R[p]), "p is not in pioneer family"
+    p_pos = self.rank(p)-1
     if isinstance(self.P_prime, BP):
-      rank = self.P_prime.findclose(self.rank(p)-1)
+      q_pos = self.P_prime.findclose(p_pos)
     else:
-      rank = TableLookup.findclose(self.P_prime, self.rank(p)-1)
-    return self.select(rank+1)
+      q_pos = TableLookup.findclose(self.P_prime, p_pos)
+    q_rank = q_pos+1
+    return self.select(q_rank)
 
   def findopen(self, q):
     assert(self.R[q]), "q is not in pioneer family"
+    q_pos = self.rank(q)-1
     if isinstance(self.P_prime, BP):
-      rank = self.P_prime.findopen(self.rank(q)-1)
+      p_pos = self.P_prime.findopen(q_pos)
     else:
-      rank = TableLookup.findopen(self.P_prime, self.rank(q)-1)
-    return self.select(rank+1)
+      p_pos = TableLookup.findopen(self.P_prime, q_pos)
+    p_rank = p_pos+1
+    return self.select(p_rank)
+
+  def enclose(self, c):
+    assert(self.R[c]), "c is not in pioneer family"
+    c_pos = self.rank(c)-1
+    if isinstance(self.P_prime, BP):
+      par_pos = self.P_prime.enclose(c_pos)
+    else:
+      par_pos = TableLookup.enclose_inblock(self.P_prime, c_pos, 0)
+    par_rank=par_pos+1
+    return self.select(par_rank)
+
 
