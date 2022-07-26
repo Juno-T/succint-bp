@@ -1,11 +1,13 @@
 import logging
 
 from bp import parser, utils
+from bp.bp import BP, PioneerFamily
 from bp.bracket_types import OPEN, CLOSE
 
 # MUST export PYTHONPATH=path/to/succint_BP:$PYTHONPATH
 
-PARENTHESIS = "(((())()())(()()))"
+# PARENTHESIS = "(((())()())(()()))"
+PARENTHESIS = "(()(())()((()())())())()(()((()())())())"
 
 def query_check(command, x, myBP):
   err=""
@@ -41,10 +43,21 @@ def print_man():
   """
   print(s)
 
+def constructManualBP(P: BP):
+  block_size1 = 3
+  R1, P_prime1 = utils.getPioneerFamily(P, block_size1)
+  block_size2 = 2
+  R2, P_prime2 = utils.getPioneerFamily(P_prime1, block_size2)
+  R2 = PioneerFamily(R2, P_prime2)
+  BP2 = BP(P_prime1, R2, block_size2)
+  R1 = PioneerFamily(R1, BP2)
+  BP1 = BP(P, R1, block_size1)
+  return BP1
+
 if __name__=="__main__":
   print_man()
   P = parser.str2P(PARENTHESIS)
-  myBP = utils.constructBP(P)
+  myBP = constructManualBP(P)
   print("BP data structure:\n")
   print(" "*3, parser.index_str(myBP))
   print(myBP)
@@ -72,6 +85,9 @@ if __name__=="__main__":
       marker = [x, q]
     elif command=="fo":
       p = myBP.findopen(x)
+      marker = [x, p]
+    elif command=="en":
+      p = myBP.enclose(x)
       marker = [x, p]
 
     str_P_prefix = "P  "
